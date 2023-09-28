@@ -1,37 +1,54 @@
 package com.example.road_traffic_app
 
-import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.road_traffic_app.databinding.ItemCameraBinding
 
-class CameraListAdapter(private val context: Context) :
-    RecyclerView.Adapter<CameraListAdapter.ViewHolder>() {
+class CameraListAdapter(val onClick : (CameraEntity) -> Unit) :
+    ListAdapter<CameraEntity , CameraListAdapter.ViewHolder>(diffUtil) {
 
-    var datast = mutableListOf<CameraEntity>()
-
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val trafficctprvnNm : TextView = itemView.findViewById(R.id.ctprvnNmTextView)
-        private val trafficsignguNm : TextView = itemView.findViewById(R.id.signguNmTextView)
-        private val trafficitlpc : TextView = itemView.findViewById(R.id.itlpcTextView)
-
+    inner class ViewHolder(private val viewBinding: ItemCameraBinding) :
+        RecyclerView.ViewHolder(viewBinding.root) {
         fun bind(item: CameraEntity) {
-            trafficctprvnNm.text = item.ctprvnNm
-            trafficsignguNm.text = item.signguNm
-            trafficitlpc.text = item.itlpc
+            viewBinding.ctprvnNmTextView.text = item.ctprvnNm
+            viewBinding.signguNmTextView.text = item.signguNm
+            viewBinding.itlpcTextView.text = item.itlpc
+
+            viewBinding.root.setOnClickListener {
+                onClick(item)
+            }
+
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_camera,parent,false)
-        return ViewHolder(view)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder  {
+        return ViewHolder(
+            ItemCameraBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
-    override fun getItemCount(): Int = datast.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(datast[position])
+        holder.bind(currentList[position])
+    }
+    companion object {
+        val diffUtil = object : DiffUtil.ItemCallback<CameraEntity>() {
+            override fun areItemsTheSame(oldItem: CameraEntity, newItem: CameraEntity): Boolean {
+                return oldItem.ctprvnNm == newItem.ctprvnNm
+            }
+
+            override fun areContentsTheSame(oldItem: CameraEntity, newItem: CameraEntity): Boolean {
+                return oldItem == newItem
+            }
+
+        }
     }
 }

@@ -1,7 +1,9 @@
 package com.example.road_traffic_app
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.road_traffic_app.databinding.ActivityMainBinding
@@ -27,13 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         val service = retrofit.create(TrafficService::class.java)
 
-
-
         binding.applyButton.setOnClickListener {
             val ctprvnNm = binding.usernameEditText.text.toString()
             val signguNm = binding.descriptionEditText.text.toString()
-
-
 
             service.getVillageTraffic(
                 ctprvnNm = ctprvnNm,
@@ -63,18 +61,22 @@ class MainActivity : AppCompatActivity() {
                             datas.apply {
                                 add(camera)
                             }
-
-                            binding.CameraList.setOnClickListener {
-                                Toast.makeText(this@MainActivity , "위도 : ${camera.longitude} , 경도 : ${camera.latitude}", Toast.LENGTH_SHORT).show()
-                            }
+                        }
+                        cameraadapter = CameraListAdapter {
+                            val intent = Intent(this@MainActivity , LocationActivity::class.java)
+                            intent.putExtra("longitude" , it.longitude)
+                            intent.putExtra("latitude" , it.latitude)
+                            startActivity(intent)
                         }
 
-                        cameraadapter = CameraListAdapter(this@MainActivity)
-                        binding.CameraList.adapter = cameraadapter
+                        val linearLayoutManager = LinearLayoutManager(this@MainActivity)
 
-                        cameraadapter.datast = datas
-                        cameraadapter.notifyDataSetChanged()
+                        binding.CameraList.apply {
+                            layoutManager = linearLayoutManager
+                            adapter = cameraadapter
+                        }
 
+                        cameraadapter.submitList(cameraList)
                     }
                 }
                 override fun onFailure(call: Call<TrafficEntity>, t: Throwable) {
